@@ -1,19 +1,33 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Domain, DomainFactory } from "../typechain";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+describe("Domain", function () {
+  let domainFactory: DomainFactory;
+  let domain: Domain;
+  let domainAddress: string;
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+  it("Should deploy a DomainFactory ", async () => {
+    const DomainFactory = await ethers.getContractFactory("DomainFactory");
+    domainFactory = await DomainFactory.deploy();
+    await domainFactory.deployed();
+  });
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  it("deploy a Domain using DomainFactory ", async () => {
+    const tx = await domainFactory.createDomain("public string here");
+    const rc = await tx.wait();
+    const event = rc.events?.find((event) => event.event === "CreatedDomain");
+    const args = event?.args;
+    if (args) domainAddress = args[0];
+  });
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+  it("attach an abi interface to the deployed domain", async () => {
+    const Domain = await ethers.getContractFactory("Domain");
+    domain = await Domain.attach(domainAddress);
+  });
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+  it("get data from Domain deployed by DomainFactory ", async () => {
+    const res = await domain.getChildren();
+    console.log(res);
   });
 });

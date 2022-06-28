@@ -1,7 +1,12 @@
 {
+  "license": "MIT",
   "name": "hardhat-project",
   "engines": {
-    "node": "16.0.0"
+    "node": "^16.0.0"
+  },
+  "scripts": {
+    "prettier": "prettier --write contracts/**/*.sol",
+    "lint": "solhint --fix contracts/**/*.sol"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
